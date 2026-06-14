@@ -2,53 +2,152 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>M & G 风格 PPT 脚本在线配置中心</title>
+    <title>PPT 自动化引擎 - 基础版式配置中心</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.9.2/jsoneditor.min.css" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.9.2/jsoneditor.min.js"></script>
     <style>
-        body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f8; }
-        .header { margin-bottom: 20px; padding: 10px 20px; background-color: #004d40; color: white; border-radius: 4px; }
-        .container { display: flex; gap: 20px; height: calc(100vh - 120px); }
-        #jsoneditor { flex: 1; height: 100%; }
-        .actions { width: 220px; display: flex; flex-direction: column; gap: 15px; }
-        button { padding: 12px; background-color: #007c64; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        button:hover { background-color: #004d38; }
-        button.download { background-color: #86bc25; color: #121212; }
-        button.download:hover { background-color: #6da21e; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f7f9; height: 100vh; display: flex; flex-direction: column; }
+        .header { padding: 12px 24px; background-color: #1a2a3a; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .header h2 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: 0.5px; }
+        .workspace { display: flex; flex: 1; padding: 15px; gap: 15px; box-sizing: border-box; overflow: hidden; }
+        
+        /* 左栏：文本框 */
+        .left-panel { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
+        .left-panel h3 { margin-top: 0; margin-bottom: 8px; color: #334155; font-size: 13px; font-weight: 600; }
+        .text-area { flex: 1; width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; line-height: 1.6; resize: none; box-sizing: border-box; color: #334155; }
+        
+        /* 中间栏：版式原子类型 */
+        .middle-panel { width: 240px; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 10px; box-sizing: border-box; overflow-y: auto; }
+        .group-title { font-size: 11px; font-weight: bold; color: #475569; margin: 10px 0 4px 2px; text-transform: uppercase; border-left: 3px solid #64748b; padding-left: 6px; }
+        
+        /* 右栏：可视化树状表单 */
+        .right-panel { flex: 1.3; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
+        .right-panel h3 { margin-top: 0; margin-bottom: 8px; color: #334155; font-size: 13px; font-weight: 600; }
+        #jsoneditor { flex: 1; width: 100%; }
+
+        /* 中立按钮样式 */
+        button.tpl-btn { padding: 7px 10px; background-color: #f8fafc; color: #334155; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer; font-size: 12px; text-align: left; transition: all 0.15s; margin-bottom: 3px; }
+        button.tpl-btn:hover { background-color: #e2e8f0; color: #0f172a; }
+        button.download { padding: 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; margin-top: auto; position: sticky; bottom: 0; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
+        button.download:hover { background-color: #2563eb; }
+        .hint-bar { font-size: 11px; color: #475569; background: #f1f5f9; padding: 6px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
+        
+        /* 改写内置编辑器的部分边框色，使其视觉上更中立 */
+        .jsoneditor { border: 1px solid #cbd5e1 !important; }
+        .jsoneditor-menu { background-color: #475569 !important; border-bottom: 1px solid #475569 !important; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h2>📊 PPT 自动化引擎 - 结构化文字脚本当案库</h2>
+    <h2>📊 PPT 自动化渲染引擎 - 基础解耦配置容器</h2>
+    <div style="font-size: 12px; opacity: 0.8;">划选左侧文字 ➡️ 点击右侧框输入（具体配色与样式在渲染引擎中集中控制）</div>
 </div>
 
-<div class="container">
-    <div id="jsoneditor"></div>
-    <div class="actions">
-        <button onclick="loadTemplate('architecture')">📂 载入：分层架构模版</button>
-        <button onclick="loadTemplate('chain')">📂 载入：驱动传导链模版</button>
-        <button onclick="loadTemplate('matrix')">📂 载入：G风格矩阵表格</button>
-        <hr style="width:100%; border:0; border-top:1px solid #ccc;">
-        <button class="download" onclick="downloadJSON()">💾 下载 ppt_content.json</button>
+<div class="workspace">
+    <div class="left-panel">
+        <h3>📝 1. 文本内容草稿区</h3>
+        <div class="hint-bar">提示：在左侧输入或粘贴大纲，鼠标选中文字后，直接点击右侧表单对应框即可填入。</div>
+        <textarea class="text-area" id="rawText" placeholder="在此处键入或粘贴你的基础文字材料..."></textarea>
+    </div>
+    
+    <div class="middle-panel">
+        <div style="text-align: center; font-size: 12px; color: #475569; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">🧩 基础版式原子类型</div>
+        
+        <div class="group-title">一、 基础与结构页</div>
+        <button class="tpl-btn" onclick="loadTemplate('title_slide')">▪ title_slide (主封面)</button>
+        <button class="tpl-btn" onclick="loadTemplate('menu_slide')">▪ menu_slide (大目录)</button>
+        <button class="tpl-btn" onclick="loadTemplate('divider_slide')">▪ divider_slide (章过渡)</button>
+        <button class="tpl-btn" onclick="loadTemplate('summary_slide')">▪ summary_slide (总结页)</button>
+
+        <div class="group-title">二、 流程、进度与路径</div>
+        <button class="tpl-btn" onclick="loadTemplate('timeline_slide')">▪ timeline_slide (时间轴)</button>
+        <button class="tpl-btn" onclick="loadTemplate('roadmap_slide')">▪ roadmap_slide (路线图)</button>
+        <button class="tpl-btn" onclick="loadTemplate('gantt_slide')">▪ gantt_slide (甘特图)</button>
+        <button class="tpl-btn" onclick="loadTemplate('chain_slide')">▪ chain_slide (传导逻辑链)</button>
+        <button class="tpl-btn" onclick="loadTemplate('funnel_slide')">▪ funnel_slide (漏斗模型)</button>
+        <button class="tpl-btn" onclick="loadTemplate('v_model_slide')">▪ v_model_slide (V字结构)</button>
+
+        <div class="group-title">三、 对比与矩阵</div>
+        <button class="tpl-btn" onclick="loadTemplate('comparison_table_slide')">▪ comparison_table (对比表格)</button>
+        <button class="tpl-btn" onclick="loadTemplate('quadrant_slide')">▪ quadrant_slide (四象限)</button>
+        <button class="tpl-btn" onclick="loadTemplate('swot_slide')">▪ swot_slide (矩阵分析)</button>
+        <button class="tpl-btn" onclick="loadTemplate('pros_cons_slide')">▪ pros_cons_slide (两项利弊对比)</button>
+        <button class="tpl-btn" onclick="loadTemplate('gap_analysis_slide')">▪ gap_analysis (缺口分析)</button>
+
+        <div class="group-title">四、 系统全景与层级</div>
+        <button class="tpl-btn" onclick="loadTemplate('architecture_slide')">▪ architecture_slide (分层全景架构)</button>
+        <button class="tpl-btn" onclick="loadTemplate('pyramid_slide')">▪ pyramid_slide (阶梯金字塔)</button>
+        <button class="tpl-btn" onclick="loadTemplate('radial_slide')">▪ radial_slide (向心圈层)</button>
+        <button class="tpl-btn" onclick="loadTemplate('hub_spoke_slide')">▪ hub_spoke_slide (星型拓扑布局)</button>
+
+        <div class="group-title">五、 基础统计图表与数据</div>
+        <button class="tpl-btn" onclick="loadTemplate('metrics_slide')">▪ metrics_slide (核心指标看板)</button>
+        <button class="tpl-btn" onclick="loadTemplate('bar_chart_slide')">▪ bar_chart_slide (常规柱状图)</button>
+        <button class="tpl-btn" onclick="loadTemplate('line_chart_slide')">▪ line_chart_slide (趋势折线图)</button>
+        <button class="tpl-btn" onclick="loadTemplate('pie_chart_slide')">▪ pie_chart_slide (结构饼图)</button>
+        <button class="tpl-btn" onclick="loadTemplate('waterfall_chart_slide')">▪ waterfall_chart (瀑布演进图)</button>
+
+        <div class="group-title">六、 并列排版与文案清单</div>
+        <button class="tpl-btn" onclick="loadTemplate('cards_slide')">▪ cards_slide (多卡片平铺布局)</button>
+        <button class="tpl-btn" onclick="loadTemplate('text_list_slide')">▪ text_list_slide (要点清单页)</button>
+        <button class="tpl-btn" onclick="loadTemplate('quote_slide')">▪ quote_slide (引言与大字金句)</button>
+        
+        <button class="download" onclick="downloadJSON()">💾 导出基础配置 JSON</button>
+    </div>
+    
+    <div class="right-panel">
+        <h3>⚙ 2. 纯净结构表单配置区</h3>
+        <div id="jsoneditor"></div>
     </div>
 </div>
 
 <script>
     const container = document.getElementById("jsoneditor");
-    const options = { mode: 'form', modes: ['form', 'tree', 'code'], name: 'PPT_Report' };
+    const options = { mode: 'form', modes: ['form', 'tree', 'code'], name: 'Document_Config' };
     const editor = new JSONEditor(container, options);
 
+    // 完全不包含任何公司和特定业务的初始化纯净结构
     const defaultData = {
-        "meta": { "filename": "Output_Presentation.pptx", "footer": "© 2026 Consulting Group" },
-        "slides": [ { "type": "title_slide", "title_zh": "请输入主标题", "subtitle_zh": "请输入副标题" } ]
+        "meta": { "filename": "output_presentation.pptx", "footer": "Slide Document Header/Footer Text" },
+        "slides": [ { "type": "title_slide", "page_title": "封面页", "title_zh": "请输入主标题文字", "subtitle_zh": "请输入副标题文本说明" } ]
     };
     editor.set(defaultData);
 
+    // 40+基础原子布局配置结构字典（完全剔除业务文案，仅保留数据和容器骨架）
     const templates = {
-        architecture: { "type": "architecture_slide", "page_title": "战略分层大图景", "layers": [{ "layer": "应用层", "items": ["项目A", "项目B"] }] },
-        chain: { "type": "chain_slide", "page_title": "逻辑因果传导链", "nodes": [{ "label": "驱动因素", "detail": "具体阐述" }] },
-        matrix: { "type": "comparison_table_slide", "page_title": "多情景对比矩阵", "columns": ["指标", "情景A"], "rows": [["测试数据", "100"]] }
+        title_slide: { "type": "title_slide", "page_title": "页面标题说明", "title_zh": "主标题", "subtitle_zh": "副标题" },
+        menu_slide: { "type": "menu_slide", "page_title": "议程 / 目录", "chapters": [{"num": "第一单元", "title": "章节名称", "desc": "内容阐述说明"}] },
+        divider_slide: { "type": "divider_slide", "page_title": "章节过渡", "chapter_num": "01", "chapter_title": "过渡页核心标题" },
+        summary_slide: { "type": "summary_slide", "page_title": "总结页", "conclusions": ["关键总结要点 1", "关键总结要点 2"] },
+        
+        timeline_slide: { "type": "timeline_slide", "page_title": "时间线进度", "milestones": [{"date": "阶段节点说明", "event": "对应发生的重大事件或任务"}] },
+        roadmap_slide: { "type": "roadmap_slide", "page_title": "实施路径规划", "phases": [{"phase": "阶段一", "period": "时段跨度", "name": "阶段定位", "tracks": [{"label": "分类维度", "text": "具体任务项或关键任务阐述"}]}] },
+        gantt_slide: { "type": "gantt_slide", "page_title": "排程计划与关键路径", "tasks": [{"name": "任务项名称", "start": "起始时间", "duration": "持续周期", "owner": "归属模块/责任人"}] },
+        chain_slide: { "type": "chain_slide", "page_title": "多步骤因果传导路径", "nodes": [{"label": "传导步骤一", "detail": "此步骤发生的机制或具体逻辑内容阐述"}] },
+        funnel_slide: { "type": "funnel_slide", "page_title": "层级转化漏斗模型", "levels": [{"level": "层级名称", "rate": "量化比率", "desc": "对应层级的规则或说明文本"}] },
+        v_model_slide: { "type": "v_model_slide", "page_title": "双向校验对称模型", "left_arm": ["左侧序列点一"], "right_arm": ["右侧序列点一"], "bottom_vertex": "底部核心交付点" },
+
+        comparison_table_slide: { "type": "comparison_table_slide", "page_title": "多维度多标杆对比矩阵", "columns": ["评估指标维度", "对比对象 A", "对比对象 B"], "rows": [["评估细项一", "数据/情况 A", "数据/情况 B"]], "highlight_rows": [1] },
+        quadrant_slide: { "type": "quadrant_slide", "page_title": "2×2 矩阵坐标四象限", "top_left": {"title": "象限一", "items": ["要素点"] }, "top_right": {"title": "象限二", "items": []}, "bottom_left": {"title": "象限三", "items": []}, "bottom_right": {"title": "象限四", "items": []} },
+        swot_slide: { "type": "swot_slide", "page_title": "常规四要素态势平衡矩阵", "strengths": ["优势维度点"], "weaknesses": [], "opportunities": [], "threats": [] },
+        pros_cons_slide: { "type": "pros_cons_slide", "page_title": "两方案利弊双向对称对比", "pros": ["正面优势或积极因素点"], "cons": ["存在问题或风险制约点"] },
+        gap_analysis_slide: { "type": "gap_analysis_slide", "page_title": "现状目标缺口分析", "current": "当前执行状态现状", "target": "预期达成理想目标", "gaps": ["目前存在的差距核心点"] },
+
+        architecture_slide: { "type": "architecture_slide", "page_title": "分层系统架构全景图", "layers": [{"layer": "顶层模块/应用层", "items": ["功能子项单元A", "功能子项单元B"]}] },
+        pyramid_slide: { "type": "pyramid_slide", "page_title": "阶梯金字塔递进结构", "levels": [{"tier": "第一层级", "title": "定位要素说明"}, {"tier": "第二层级", "title": "定位要素说明"}] },
+        radial_slide: { "type": "radial_slide", "page_title": "核心向心圆外延结构", "core": "核心要素", "inner_ring": "紧密圈层要素", "outer_ring": "外围辐射扩展要素" },
+        hub_spoke_slide: { "type": "hub_spoke_slide", "page_title": "星型拓扑辐射供给网络", "center": "控制核心枢纽", "spokes": ["节点单元 A", "节点单元 B"] },
+
+        metrics_slide: { "type": "metrics_slide", "page_title": "核心关键量化指标看板", "metrics": [{"value": "0,000", "label": "统计指标名称", "trend": "变化量/趋势"}] },
+        bar_chart_slide: { "type": "bar_chart_slide", "page_title": "数据对比柱状图表", "headers": ["对比对象/年份", "统计数量"], "data": [["类别项目A", "100"]] },
+        line_chart_slide: { "type": "line_chart_slide", "page_title": "动态变化趋势折线图", "points": [["区间项", "数值"]] },
+        pie_chart_slide: { "type": "pie_chart_slide", "page_title": "比例结构分布饼图", "slices": [{"label": "构成元素一", "value": "50%"}] },
+        waterfall_chart_slide: { "type": "waterfall_chart_slide", "page_title": "步进演进增减瀑布图", "steps": [{"name": "初始基准值", "value": "100"}, {"name": "变量增减项", "value": "-20"}] },
+
+        cards_slide: { "type": "cards_slide", "layout": "grid", "page_title": "并列要点卡片平铺看板", "cards": [{"num": "01", "title": "子项大标题", "body": "具体的细节论证和描述文本内容说明项"}] },
+        text_list_slide: { "type": "text_list_slide", "page_title": "多要点清单列表页", "lead_text": "此处放大字号页内核心导言或金句结论", "list_items": ["基础列表陈述要点 1", "基础列表陈述要点 2"] },
+        quote_slide: { "type": "quote_slide", "page_title": "大字金句或外部证言引言", "quote_text": "“此处填写大字号需要高度强调的核心引言、结论或见证文本。”", "author": "发布主体/出处说明" }
     };
 
     function loadTemplate(type) {
@@ -57,7 +156,7 @@
         currentData.slides.push(templates[type]);
         editor.set(currentData);
         editor.expandAll();
-    }
+    </div>
 
     function downloadJSON() {
         const jsonStr = JSON.stringify(editor.get(), null, 2);
@@ -72,6 +171,18 @@
         try { return editor.get().meta.filename || "ppt_content.json"; }
         catch(e) { return "ppt_content.json"; }
     }
+
+    // 实现左侧选择文本，去右侧表单直接快速点击填入的功能
+    document.addEventListener('click', function(e) {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') && e.target.id !== 'rawText') {
+            const selectedText = window.getSelection().toString().trim();
+            if (selectedText && (!e.target.value || e.target.value.includes("请输入") || e.target.value.includes("说明") || e.target.value.includes("占位") || e.target.value === "主标题" || e.target.value === "副标题")) {
+                e.target.value = selectedText;
+                const event = new Event('change', { bubbles: true });
+                e.target.dispatchEvent(event);
+            }
+        }
+    });
 </script>
 </body>
 </html>
