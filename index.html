@@ -172,19 +172,15 @@
         }
         return result;
     }
-
-    // ===================================================
-    // 🕹️ 按钮逻辑：无错解析并强力平滑同步
+// ===================================================
+    // 🕹️ 按钮逻辑：静默解析，强制清洗，直接同步
     // ===================================================
     function cleanAndSyncToEditor() {
         const rawText = document.getElementById("rawText").value.trim();
-        if (!rawText) {
-            alert("请先在左侧输入框内粘贴来自 AI 的原始 JSON 数据。");
-            return;
-        }
+        if (!rawText) return; // 输入为空则静默退出
 
         try {
-            // 提取纯净的 JSON 文本，防止 AI 在外面包裹 ```json 导致解析失败
+            // 提取纯净 JSON
             let jsonString = rawText;
             if (jsonString.includes("```")) {
                 const blocks = jsonString.split("```");
@@ -200,47 +196,64 @@
             }
 
             const rawJson = JSON.parse(jsonString.trim());
-            
-            // 核心清洗重塑调用
             const finalCleanedData = processGlobalCleansing(rawJson);
             
-            // 丝滑展现：无弹窗、不报错，直接在右侧铺满最纯净的表单
+            // 丝滑展现：不弹窗，直接更新界面
             editor.set(finalCleanedData);
             editor.setMode('form');
             editor.expandAll();
             
         } catch (e) {
-            alert("解析失败！您粘贴的内容不符合标准 JSON 文本格式。请检查是否有漏掉的英文花括号，或者让 AI 重新生成一份标准的 JSON 块再试。");
+            console.error("JSON 解析清洗失败，跳过本次同步。", e);
+            // 失败时静默处理，不使用 alert 打扰
         }
     }
 
     // ===================================================
-    // 初始化编辑器组件 (强制Form视图为主)
+    // 初始化编辑器组件
     // ===================================================
     const container = document.getElementById("jsoneditor");
     const options = { 
         mode: 'form', 
         modes: ['form', 'code', 'tree'], 
-        name: 'PPT_Form_Console'
+        name: 'PPT_Config_Console'
     };
     const editor = new JSONEditor(container, options);
 
-    // 默认标准空白骨架初始化
+    // 默认基因蓝图初始化
     const defaultInit = {
-        "meta": { "filename": "presentation_output.pptx", "footer": "© 2026 ESG Consulting | Progress Report" },
+        "meta": { 
+            "filename": "yuexiu_esg_report", 
+            "footer": "© 2026 ESG Consulting | Progress Report" 
+        },
         "slides": [
-            { "type": "title_slide", "title": "越秀地产气候情景量化推演", "subtitle": "基于港交所 ISSB 气候披露标准规范" }
+            { 
+                "type": "title_slide", 
+                "title_en": "Yuexiu Property Climate Scenario Analysis", 
+                "subtitle": "Based on HKEX ISSB Standards" 
+            }
         ]
     };
     editor.set(defaultInit);
 
-    function downloadJSON() {
-        const jsonStr = JSON.stringify(editor.get(), null, 2);
+    // ===================================================
+    // 导出逻辑：只导出符合合同规范的 JSON 配置蓝图
+    // ===================================================
+    function exportConfig() {
+        const finalData = editor.get();
+        const jsonStr = JSON.stringify(finalData, null, 2);
+        
+        // 自动生成日期文件名
+        const baseName = (finalData.meta && finalData.meta.filename) 
+            ? finalData.meta.filename 
+            : 'ppt_config';
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const fileName = `${baseName}_${timestamp}.json`;
+        
         const blob = new Blob([jsonStr], { type: "application/json" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        try { a.download = editor.get().meta.filename || "ppt_content.json"; }
-        catch(e) { a.download = "ppt_content.json"; }
+        a.download = fileName;
         a.click();
     }
 </script>
