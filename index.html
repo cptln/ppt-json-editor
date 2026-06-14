@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>PPT 自动化引擎 - 智能清洗与容错配置中心</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.9.2/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.9.2/jsoneditor.min.js"></script>
+    <style>
+        body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f7f9; height: 100vh; display: flex; flex-direction: column; }
+        .header { padding: 12px 24px; background-color: #1a2a3a; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .header h2 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: 0.5px; }
+        .workspace { display: flex; flex: 1; padding: 15px; gap: 15px; box-sizing: border-box; overflow: hidden; }
+        
+        /* 左右解耦布局 */
+        .left-panel { flex: 1.1; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
+        .left-panel h3 { margin-top: 0; margin-bottom: 8px; color: #334155; font-size: 13px; font-weight: 600; }
+        .text-area { flex: 1; width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; line-height: 1.6; resize: none; box-sizing: border-box; color: #334155; margin-bottom: 10px; font-family: "Courier New", Courier, monospace; }
+        
+        .right-panel { flex: 1.9; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
+        .right-panel h3 { margin-top: 0; margin-bottom: 8px; color: #334155; font-size: 13px; font-weight: 600; }
+        #jsoneditor { flex: 1; width: 100%; }
+
+        /* 核心动作按钮 */
+        button.action-btn { padding: 12px; background-color: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 8px; text-align: center; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); transition: background 0.15s; }
+        button.action-btn:hover { background-color: #059669; }
+        
+        button.download { padding: 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; }
+        button.download:hover { background-color: #2563eb; }
+        
+        .hint-bar { font-size: 11px; color: #047857; background: #ecfdf5; padding: 10px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #a7f3d0; line-height: 1.5; }
+        
+        .jsoneditor { border: 1px solid #cbd5e1 !important; }
+        .jsoneditor-menu { background-color: #475569 !important; border-bottom: 1px solid #475569 !important; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>📊 PPT 自动化渲染引擎 - 智能清洗容错配置中心</h2>
+    <div style="font-size: 12px; opacity: 0.8;">由 Supported Types v2.0 强规约提供底层自动修复驱动</div>
+</div>
+
+<div class="workspace">
+    <div class="left-panel">
+        <h3>📝 1. AI 原始 JSON 粘贴区</h3>
+        <div class="hint-bar">
+            <b>✨ 自动化流转：</b><br>
+            1. 把 AI 吐出的复杂 JSON（即便有少字段、写错字段的瑕疵）整个粘贴到下方文本框中。<br>
+            2. 点击下方绿色<b>【🔄 智能清洗、补全并同步至表单】</b>按钮。<br>
+            3. 系统将自动过滤脏字段并智能补齐缺项，右侧将呈现 100% 完美无错的表单。
+        </div>
+        <textarea class="text-area" id="rawText" placeholder="在此粘贴 AI 吐给你的 JSON 原始文本块..."></textarea>
+        <button class="action-btn" onclick="cleanAndSyncToEditor()">🔄 智能清洗、补全并同步至表单</button>
+        <button class="download" onclick="downloadJSON()">💾 导出终审配置 JSON</button>
+    </div>
+    
+    <div class="right-panel">
+        <h3>⚙ 2. 纯净结构表单配置区 (已过滤全部非法加戏字段)</h3>
+        <div id="jsoneditor"></div>
+    </div>
+</div>
+
+<script>
+    // ===================================================
+    // 🧠 核心注入：基于你上传的 supported_types.json 建立标准骨架映射
+    // ===================================================
+    const SUPPORTED_TYPES_CONTRACT = {
+        "title_slide": ["title", "title_en?", "subtitle?", "subtitle_en?", "stock_code?", "year?"],
+        "menu_slide": ["page_title", "chapters[]:{num, title, desc}"],
+        "divider_slide": ["page_title", "chapter_num", "chapter_title"],
+        "summary_slide": ["page_title", "conclusions[]"],
+        "timeline_slide": ["page_title", "intro_text?", "milestones[]:{phase?, year, title, desc}", "foundation?:{title, desc}"],
+        "roadmap_slide": ["page_title", "phases[]:{phase, period, name, tracks[]:{label, text}}"],
+        "gantt_slide": ["page_title", "intro_text?", "tasks[]:{label, start_week, duration_weeks, owner}", "total_weeks?", "insight?"],
+        "chain_slide": ["page_title", "nodes[]:{title, detail, sub_items[]?}"],
+        "funnel_slide": ["page_title", "levels[]:{level, rate, desc}"],
+        "v_model_slide": ["page_title", "left_arm[]", "right_arm[]", "bottom_vertex"],
+        "comparison_table_slide": ["page_title", "columns[]", "rows[][]", "highlight_rows?[]"],
+        "quadrant_slide": ["page_title", "x_axis_label", "y_axis_label", "top_left:{title, items[]}", "top_right:{title, items[]}", "bottom_left:{title, items[]}", "bottom_right:{title, items[]}"],
+        "swot_slide": ["page_title", "strengths[]", "weaknesses[]", "opportunities[]", "threats[]"],
+        "pros_cons_slide": ["page_title", "pros[]", "cons[]"],
+        "gap_analysis_slide": ["page_title", "current", "target", "gaps[]"],
+        "architecture_slide": ["page_title", "layers[]:{layer, items[]}"],
+        "pyramid_slide": ["page_title", "levels[]:{tier, title}"],
+        "radial_slide": ["page_title", "core", "inner_ring[]", "outer_ring[]"],
+        "hub_spoke_slide": ["page_title", "center", "spokes[]"],
+        "metrics_slide": ["page_title", "intro_text?", "metrics[]:{value, unit?, label, sub?}", "per_row?", "insight?"],
+        "bar_chart_slide": ["page_title", "chart:{categories[], series[]:{name, values[]}}", "orientation?", "insight?"],
+        "line_chart_slide": ["page_title", "chart:{categories[], series[]:{name, values[]}}", "insight?"],
+        "pie_chart_slide": ["page_title", "slices[]:{label, value}"],
+        "waterfall_chart_slide": ["page_title", "steps[]:{name, value}"],
+        "cards_slide": ["page_title", "cards[]:{title, tagline?, body, num?, metrics[]?:{value, label}}", "layout?"],
+        "text_list_slide": ["page_title", "intro_text", "body_text?", "list_intro?", "list_items[]"],
+        "quote_slide": ["page_title", "quote_text", "author"]
+    };
+
+    // ===================================================
+    // ⚡ 自动化修复重塑核心算法：裁剪脏字段，补齐缺少项
+    // ===================================================
+    function reshapeObject(rawObj, fieldsDef) {
+        if (!rawObj || typeof rawObj !== 'object') return {};
+        const cleanObj = {};
+
+        fieldsDef.forEach(def => {
+            let isOptional = def.endsWith('?');
+            let cleanDef = isOptional ? def.slice(0, -1) : def;
+            
+            let key = cleanDef.split(/[\[\:\{]/)[0];
+            let rawValue = rawObj[key];
+
+            // 智能赋缺省初值：如果 AI 漏写了，根据规约类型自动无感补全空字段
+            if (rawValue === undefined) {
+                if (cleanDef.includes('[]')) {
+                    cleanObj[key] = []; // 补齐空数组
+                } else if (cleanDef.includes(':{')) {
+                    cleanObj[key] = {}; // 补齐空对象
+                } else {
+                    cleanObj[key] = ""; // 补齐空文本
+                }
+                return;
+            }
+
+            // 数据清洗流：根据规约约束深度洗牌
+            if (cleanDef.includes('[]')) {
+                if (!Array.isArray(rawValue)) rawValue = [rawValue]; // 强转数组
+                
+                if (cleanDef.includes(':{')) {
+                    // 处理对象数组嵌套如 phases[]:{phase, name}
+                    const subSchemaStr = cleanDef.split(':{')[1].slice(0, -1);
+                    const subFields = subSchemaStr.split(',').map(s => s.trim());
+                    cleanObj[key] = rawValue.map(item => reshapeObject(item, subFields));
+                } else if (cleanDef.includes('[][]')) {
+                    // 处理二维数组如 rows[][]
+                    cleanObj[key] = rawValue.map(row => Array.isArray(row) ? row : [row]);
+                } else {
+                    // 纯值数组如 conclusions[]
+                    cleanObj[key] = rawValue;
+                }
+            } else if (cleanDef.includes(':{')) {
+                // 处理单项对象嵌套如 chart:{categories, series}
+                const subSchemaStr = cleanDef.split(':{')[1].slice(0, -1);
+                const subFields = subSchemaStr.split(',').map(s => s.trim());
+                cleanObj[key] = reshapeObject(rawValue, subFields);
+            } else {
+                // 标量纯文本/数字赋值
+                cleanObj[key] = rawValue;
+            }
+        });
+
+        return cleanObj;
+    }
+
+    function processGlobalCleansing(rawJson) {
+        const result = {
+            meta: rawJson.meta || { "filename": "presentation_output.pptx", "footer": "© 2026 ESG Consulting" },
+            slides: []
+        };
+
+        if (rawJson.slides && Array.isArray(rawJson.slides)) {
+            rawJson.slides.forEach(slide => {
+                if (!slide.type || !SUPPORTED_TYPES_CONTRACT[slide.type]) return; // 自动剔除无法识别的非合规页
+                
+                const fieldsConfig = SUPPORTED_TYPES_CONTRACT[slide.type];
+                const cleanSlide = { type: slide.type };
+                
+                // 深度揉碎、重组单页内容
+                const reshapedFields = reshapeObject(slide, fieldsConfig);
+                Object.assign(cleanSlide, reshapedFields);
+                
+                result.slides.push(cleanSlide);
+            });
+        }
+        return result;
+    }
+
+    // ===================================================
+    // 🕹️ 按钮逻辑：无错解析并强力平滑同步
+    // ===================================================
+    function cleanAndSyncToEditor() {
+        const rawText = document.getElementById("rawText").value.trim();
+        if (!rawText) {
+            alert("请先在左侧输入框内粘贴来自 AI 的原始 JSON 数据。");
+            return;
+        }
+
+        try {
+            // 提取纯净的 JSON 文本，防止 AI 在外面包裹 ```json 导致解析失败
+            let jsonString = rawText;
+            if (jsonString.includes("```")) {
+                const blocks = jsonString.split("```");
+                for (let i = 0; i < blocks.length; i++) {
+                    if (blocks[i].toLowerCase().startsWith("json")) {
+                        jsonString = blocks[i].substring(4).trim();
+                        break;
+                    } else if (blocks[i].trim().startsWith("{")) {
+                        jsonString = blocks[i].trim();
+                        break;
+                    }
+                }
+            }
+
+            const rawJson = JSON.parse(jsonString.trim());
+            
+            // 核心清洗重塑调用
+            const finalCleanedData = processGlobalCleansing(rawJson);
+            
+            // 丝滑展现：无弹窗、不报错，直接在右侧铺满最纯净的表单
+            editor.set(finalCleanedData);
+            editor.setMode('form');
+            editor.expandAll();
+            
+        } catch (e) {
+            alert("解析失败！您粘贴的内容不符合标准 JSON 文本格式。请检查是否有漏掉的英文花括号，或者让 AI 重新生成一份标准的 JSON 块再试。");
+        }
+    }
+
+    // ===================================================
+    // 初始化编辑器组件 (强制Form视图为主)
+    // ===================================================
+    const container = document.getElementById("jsoneditor");
+    const options = { 
+        mode: 'form', 
+        modes: ['form', 'code', 'tree'], 
+        name: 'PPT_Form_Console'
+    };
+    const editor = new JSONEditor(container, options);
+
+    // 默认标准空白骨架初始化
+    const defaultInit = {
+        "meta": { "filename": "presentation_output.pptx", "footer": "© 2026 ESG Consulting | Progress Report" },
+        "slides": [
+            { "type": "title_slide", "title": "越秀地产气候情景量化推演", "subtitle": "基于港交所 ISSB 气候披露标准规范" }
+        ]
+    };
+    editor.set(defaultInit);
+
+    function downloadJSON() {
+        const jsonStr = JSON.stringify(editor.get(), null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        try { a.download = editor.get().meta.filename || "ppt_content.json"; }
+        catch(e) { a.download = "ppt_content.json"; }
+        a.click();
+    }
+</script>
+</body>
+</html>
