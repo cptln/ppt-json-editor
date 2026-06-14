@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>M & G 风格 PPT 脚本在线配置中心</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.9.2/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.9.2/jsoneditor.min.js"></script>
+    <style>
+        body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f8; }
+        .header { margin-bottom: 20px; padding: 10px 20px; background-color: #004d40; color: white; border-radius: 4px; }
+        .container { display: flex; gap: 20px; height: calc(100vh - 120px); }
+        #jsoneditor { flex: 1; height: 100%; }
+        .actions { width: 220px; display: flex; flex-direction: column; gap: 15px; }
+        button { padding: 12px; background-color: #007c64; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background-color: #004d38; }
+        button.download { background-color: #86bc25; color: #121212; }
+        button.download:hover { background-color: #6da21e; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>📊 PPT 自动化引擎 - 结构化文字脚本当案库</h2>
+</div>
+
+<div class="container">
+    <div id="jsoneditor"></div>
+    <div class="actions">
+        <button onclick="loadTemplate('architecture')">📂 载入：分层架构模版</button>
+        <button onclick="loadTemplate('chain')">📂 载入：驱动传导链模版</button>
+        <button onclick="loadTemplate('matrix')">📂 载入：G风格矩阵表格</button>
+        <hr style="width:100%; border:0; border-top:1px solid #ccc;">
+        <button class="download" onclick="downloadJSON()">💾 下载 ppt_content.json</button>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById("jsoneditor");
+    const options = { mode: 'form', modes: ['form', 'tree', 'code'], name: 'PPT_Report' };
+    const editor = new JSONEditor(container, options);
+
+    const defaultData = {
+        "meta": { "filename": "Output_Presentation.pptx", "footer": "© 2026 Consulting Group" },
+        "slides": [ { "type": "title_slide", "title_zh": "请输入主标题", "subtitle_zh": "请输入副标题" } ]
+    };
+    editor.set(defaultData);
+
+    const templates = {
+        architecture: { "type": "architecture_slide", "page_title": "战略分层大图景", "layers": [{ "layer": "应用层", "items": ["项目A", "项目B"] }] },
+        chain: { "type": "chain_slide", "page_title": "逻辑因果传导链", "nodes": [{ "label": "驱动因素", "detail": "具体阐述" }] },
+        matrix: { "type": "comparison_table_slide", "page_title": "多情景对比矩阵", "columns": ["指标", "情景A"], "rows": [["测试数据", "100"]] }
+    };
+
+    function loadTemplate(type) {
+        const currentData = editor.get();
+        if (!currentData.slides) currentData.slides = [];
+        currentData.slides.push(templates[type]);
+        editor.set(currentData);
+        editor.expandAll();
+    }
+
+    function downloadJSON() {
+        const jsonStr = JSON.stringify(editor.get(), null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = currentFilename();
+        a.click();
+    }
+
+    function currentFilename() {
+        try { return editor.get().meta.filename || "ppt_content.json"; }
+        catch(e) { return "ppt_content.json"; }
+    }
+</script>
+</body>
+</html>
