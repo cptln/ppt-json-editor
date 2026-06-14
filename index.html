@@ -12,16 +12,16 @@
         .workspace { display: flex; flex: 1; padding: 15px; gap: 15px; box-sizing: border-box; overflow: hidden; }
         
         /* 左栏 */
-        .left-panel { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
+        .left-panel { flex: 1.2; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
         .left-panel h3 { margin-top: 0; margin-bottom: 8px; color: #334155; font-size: 13px; font-weight: 600; }
-        .text-area { flex: 1; width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; line-height: 1.6; resize: none; box-sizing: border-box; color: #334155; margin-bottom: 10px; }
+        .text-area { flex: 1; width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; line-height: 1.6; resize: none; box-sizing: border-box; color: #334155; margin-bottom: 10px; font-family: "Courier New", Courier, monospace; }
         
         /* 中间栏 */
-        .middle-panel { width: 240px; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 10px; box-sizing: border-box; overflow-y: auto; }
+        .middle-panel { width: 250px; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 10px; box-sizing: border-box; overflow-y: auto; }
         .group-title { font-size: 11px; font-weight: bold; color: #475569; margin: 10px 0 4px 2px; text-transform: uppercase; border-left: 3px solid #64748b; padding-left: 6px; }
         
         /* 右栏 */
-        .right-panel { flex: 1.3; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
+        .right-panel { flex: 1.2; display: flex; flex-direction: column; background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px; box-sizing: border-box; }
         .right-panel h3 { margin-top: 0; margin-bottom: 8px; color: #334155; font-size: 13px; font-weight: 600; }
         #jsoneditor { flex: 1; width: 100%; }
 
@@ -30,15 +30,14 @@
         button.tpl-btn:hover { background-color: #e2e8f0; color: #0f172a; }
         
         /* 功能性主动按钮 */
-        button.action-btn { padding: 10px; background-color: #475569; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; margin-bottom: 6px; text-align: center; }
-        button.action-btn:hover { background-color: #334155; }
-        button.primary-action { background-color: #0284c7; }
-        button.primary-action:hover { background-color: #0369a1; }
+        button.action-btn { padding: 12px; background-color: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 6px; text-align: center; }
+        button.action-btn:hover { background-color: #0369a1; }
         
         button.download { padding: 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; margin-top: auto; position: sticky; bottom: 0; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
         button.download:hover { background-color: #2563eb; }
         
-        .hint-bar { font-size: 11px; color: #475569; background: #f1f5f9; padding: 8px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #e2e8f0; line-height: 1.4; }
+        .hint-bar { font-size: 11px; color: #0369a1; background: #f0f9ff; padding: 10px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #bae6fd; line-height: 1.5; }
+        .status-badge { display: inline-block; padding: 2px 6px; background: #e2e8f0; color: #334155; border-radius: 3px; font-weight: bold; margin-top: 4px; font-size: 11px; }
         
         .jsoneditor { border: 1px solid #cbd5e1 !important; }
         .jsoneditor-menu { background-color: #475569 !important; border-bottom: 1px solid #475569 !important; }
@@ -55,57 +54,58 @@
     <div class="left-panel">
         <h3>📝 1. 文本内容草稿区</h3>
         <div class="hint-bar">
-            使用说明：<br>
-            • 方式A（单步填空）：在左侧输入文字。鼠标框选一段文本，接着点击右侧表单中的目标编辑框，最后点击下方的<b>“将选中文本填入右侧框”</b>按钮。<br>
-            • 方式B（批量生成）：在左侧按规范书写包含类型名称的草稿，点击下方<b>“依据全文结构自动批量转换为表单”</b>。
+            <b>💡 闭环操作流：</b><br>
+            1. 点击中间的<b>“基础版式原子类型”</b>按钮 ➡️ 版式脚手架提示会自动追加到下方文本框内。<br>
+            2. 直接在左侧文本框中修改文字（将提示文案替换为您的业务真实内容）。<br>
+            3. 点击下方绿色按钮 ➡️ 统一在右侧生成结构表单。<br>
+            <div id="copyStatus" class="status-badge">暂无捕获的高亮文字</div>
         </div>
-        <textarea class="text-area" id="rawText" placeholder="您可以直接按照如下格式编写，以便系统一键识别：&#10;&#10;type: title_slide&#10;title_zh: 基础数据治理全景报告&#10;subtitle_zh: 2026年度框架规划&#10;&#10;type: timeline_slide&#10;page_title: 项目主要历史沿革"></textarea>
+        <textarea class="text-area" id="rawText" placeholder="点击中间的按钮，此区域将自动为您填充标准格式提示脚手架..."></textarea>
         
-        <button class="action-btn primary-action" onclick="injectSelectedText()">⚡ 将选中文本填入右侧激活框</button>
-        <button class="action-btn" onclick="parseTextToJSON()">📋 依据全文结构自动批量转换为表单</button>
+        <button class="action-btn" onclick="parseTextToJSON()">📋 依据左侧全文结构自动批量转换为表单</button>
     </div>
     
     <div class="middle-panel">
         <div style="text-align: center; font-size: 12px; color: #475569; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">🧩 基础版式原子类型</div>
         
         <div class="group-title">一、 基础与结构页</div>
-        <button class="tpl-btn" onclick="loadTemplate('title_slide')">▪ title_slide (主封面)</button>
-        <button class="tpl-btn" onclick="loadTemplate('menu_slide')">▪ menu_slide (大目录)</button>
-        <button class="tpl-btn" onclick="loadTemplate('divider_slide')">▪ divider_slide (章过渡)</button>
-        <button class="tpl-btn" onclick="loadTemplate('summary_slide')">▪ summary_slide (总结页)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('title_slide')">▪ title_slide (主封面)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('menu_slide')">▪ menu_slide (大目录)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('divider_slide')">▪ divider_slide (章过渡)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('summary_slide')">▪ summary_slide (总结页)</button>
 
         <div class="group-title">二、 流程、进度与路径</div>
-        <button class="tpl-btn" onclick="loadTemplate('timeline_slide')">▪ timeline_slide (时间轴)</button>
-        <button class="tpl-btn" onclick="loadTemplate('roadmap_slide')">▪ roadmap_slide (路线图)</button>
-        <button class="tpl-btn" onclick="loadTemplate('gantt_slide')">▪ gantt_slide (甘特图)</button>
-        <button class="tpl-btn" onclick="loadTemplate('chain_slide')">▪ chain_slide (传导逻辑链)</button>
-        <button class="tpl-btn" onclick="loadTemplate('funnel_slide')">▪ funnel_slide (漏斗模型)</button>
-        <button class="tpl-btn" onclick="loadTemplate('v_model_slide')">▪ v_model_slide (V字结构)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('timeline_slide')">▪ timeline_slide (时间轴)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('roadmap_slide')">▪ roadmap_slide (路线图)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('gantt_slide')">▪ gantt_slide (甘特图)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('chain_slide')">▪ chain_slide (传导逻辑链)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('funnel_slide')">▪ funnel_slide (漏斗模型)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('v_model_slide')">▪ v_model_slide (V字结构)</button>
 
         <div class="group-title">三、 对比与矩阵</div>
-        <button class="tpl-btn" onclick="loadTemplate('comparison_table_slide')">▪ comparison_table (对比表格)</button>
-        <button class="tpl-btn" onclick="loadTemplate('quadrant_slide')">▪ quadrant_slide (四象限)</button>
-        <button class="tpl-btn" onclick="loadTemplate('swot_slide')">▪ swot_slide (矩阵分析)</button>
-        <button class="tpl-btn" onclick="loadTemplate('pros_cons_slide')">▪ pros_cons_slide (两项利弊对比)</button>
-        <button class="tpl-btn" onclick="loadTemplate('gap_analysis_slide')">▪ gap_analysis (缺口分析)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('comparison_table_slide')">▪ comparison_table (对比表格)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('quadrant_slide')">▪ quadrant_slide (四象限)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('swot_slide')">▪ swot_slide (矩阵分析)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('pros_cons_slide')">▪ pros_cons_slide (两项利弊对比)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('gap_analysis_slide')">▪ gap_analysis (缺口分析)</button>
 
-        <div class="group-title">四、 系统全景与层级</div>
-        <button class="tpl-btn" onclick="loadTemplate('architecture_slide')">▪ architecture_slide (分层全景架构)</button>
-        <button class="tpl-btn" onclick="loadTemplate('pyramid_slide')">▪ pyramid_slide (阶梯金字塔)</button>
-        <button class="tpl-btn" onclick="loadTemplate('radial_slide')">▪ radial_slide (向心圈层)</button>
-        <button class="tpl-btn" onclick="loadTemplate('hub_spoke_slide')">▪ hub_spoke_slide (星型拓扑布局)</button>
+        <div class="group-title">四、 系统全景与层层</div>
+        <button class="tpl-btn" onclick="appendTemplateText('architecture_slide')">▪ architecture_slide (分层全景架构)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('pyramid_slide')">▪ pyramid_slide (阶梯金字塔)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('radial_slide')">▪ radial_slide (向心圈层)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('hub_spoke_slide')">▪ hub_spoke_slide (星型拓扑布局)</button>
 
         <div class="group-title">五、 基础统计图表与数据</div>
-        <button class="tpl-btn" onclick="loadTemplate('metrics_slide')">▪ metrics_slide (核心指标看板)</button>
-        <button class="tpl-btn" onclick="loadTemplate('bar_chart_slide')">▪ bar_chart_slide (常规柱状图)</button>
-        <button class="tpl-btn" onclick="loadTemplate('line_chart_slide')">▪ line_chart_slide (趋势折线图)</button>
-        <button class="tpl-btn" onclick="loadTemplate('pie_chart_slide')">▪ pie_chart_slide (结构饼图)</button>
-        <button class="tpl-btn" onclick="loadTemplate('waterfall_chart_slide')">▪ waterfall_chart (瀑布演进图)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('metrics_slide')">▪ metrics_slide (核心指标看板)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('bar_chart_slide')">▪ bar_chart_slide (常规柱状图)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('line_chart_slide')">▪ line_chart_slide (趋势折线图)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('pie_chart_slide')">▪ pie_chart_slide (结构饼图)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('waterfall_chart_slide')">▪ waterfall_chart (瀑布演进图)</button>
 
         <div class="group-title">六、 并列排版与文案清单</div>
-        <button class="tpl-btn" onclick="loadTemplate('cards_slide')">▪ cards_slide (多卡片平铺布局)</button>
-        <button class="tpl-btn" onclick="loadTemplate('text_list_slide')">▪ text_list_slide (要点清单页)</button>
-        <button class="tpl-btn" onclick="loadTemplate('quote_slide')">▪ quote_slide (引言与大字金句)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('cards_slide')">▪ cards_slide (多卡片平铺布局)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('text_list_slide')">▪ text_list_slide (要点清单页)</button>
+        <button class="tpl-btn" onclick="appendTemplateText('quote_slide')">▪ quote_slide (引言与大字金句)</button>
         
         <button class="download" onclick="downloadJSON()">💾 导出基础配置 JSON</button>
     </div>
@@ -117,9 +117,8 @@
 </div>
 
 <script>
-    // 初始化编辑器容器并记录全局活跃节点引用
     const container = document.getElementById("jsoneditor");
-    let activeInputElement = null;
+    let cachedSelectedText = ""; 
 
     const options = { 
         mode: 'form', 
@@ -128,117 +127,148 @@
     };
     const editor = new JSONEditor(container, options);
 
-    // 系统纯净初始状态
-    const defaultData = {
-        "meta": { "filename": "output_presentation.pptx", "footer": "Slide Document Header/Footer Text" },
-        "slides": [ { "type": "title_slide", "page_title": "封面页", "title_zh": "主标题", "subtitle_zh": "副标题说明" } ]
+    // 默认空骨架初始化
+    const defaultInit = {
+        "meta": { "filename": "presentation_output.pptx", "footer": "Slide Document Header/Footer Text" },
+        "slides": []
     };
-    editor.set(defaultData);
+    editor.set(defaultInit);
 
-    // 40+型基础原子版式预设字典
-    const templates = {
-        title_slide: { "type": "title_slide", "page_title": "页面标题说明", "title_zh": "主标题", "subtitle_zh": "副标题" },
-        menu_slide: { "type": "menu_slide", "page_title": "议程 / 目录", "chapters": [{"num": "第一单元", "title": "章节名称", "desc": "内容阐述说明"}] },
-        divider_slide: { "type": "divider_slide", "page_title": "章节过渡", "chapter_num": "01", "chapter_title": "过渡页核心标题" },
-        summary_slide: { "type": "summary_slide", "page_title": "总结页", "conclusions": ["关键总结要点 1", "关键总结要点 2"] },
-        timeline_slide: { "type": "timeline_slide", "page_title": "时间线进度", "milestones": [{"date": "阶段节点说明", "event": "对应发生的重大事件或任务"}] },
-        roadmap_slide: { "type": "roadmap_slide", "page_title": "实施路径规划", "phases": [{"phase": "阶段一", "period": "时段跨度", "name": "阶段定位", "tracks": [{"label": "分类维度", "text": "具体任务项或关键任务阐述"}]}] },
-        gantt_slide: { "type": "gantt_slide", "page_title": "排程计划与关键路径", "tasks": [{"name": "任务项名称", "start": "起始时间", "duration": "持续周期", "owner": "归属模块/责任人"}] },
-        chain_slide: { "type": "chain_slide", "page_title": "多步骤因果传导路径", "nodes": [{"label": "传导步骤一", "detail": "此步骤发生的机制或具体逻辑内容阐述"}] },
-        funnel_slide: { "type": "funnel_slide", "page_title": "层级转化漏斗模型", "levels": [{"level": "层级名称", "rate": "量化比率", "desc": "对应层级的规则或说明文本"}] },
-        v_model_slide: { "type": "v_model_slide", "page_title": "双向校验对称模型", "left_arm": ["左侧序列点一"], "right_arm": ["右侧序列点一"], "bottom_vertex": "底部核心交付点" },
-        comparison_table_slide: { "type": "comparison_table_slide", "page_title": "多维度多标杆对比矩阵", "columns": ["评估指标维度", "对比对象 A", "对比对象 B"], "rows": [["评估细项一", "数据/情况 A", "数据/情况 B"]], "highlight_rows": [1] },
-        quadrant_slide: { "type": "quadrant_slide", "page_title": "2×2 矩阵坐标四象限", "top_left": {"title": "象限一", "items": ["要素点"] }, "top_right": {"title": "象限二", "items": []}, "bottom_left": {"title": "象限三", "items": []}, "bottom_right": {"title": "象限四", "items": []} },
-        swot_slide: { "type": "swot_slide", "page_title": "常规四要素态势平衡矩阵", "strengths": ["优势维度点"], "weaknesses": [], "opportunities": [], "threats": [] },
-        pros_cons_slide: { "type": "pros_cons_slide", "page_title": "两方案利弊双向对称对比", "pros": ["正面优势或积极因素点"], "cons": ["存在问题或风险制约点"] },
-        gap_analysis_slide: { "type": "gap_analysis_slide", "page_title": "现状目标缺口分析", "current": "当前执行状态现状", "target": "预期达成理想目标", "gaps": ["目前存在的差距核心点"] },
-        architecture_slide: { "type": "architecture_slide", "page_title": "分层系统架构全景图", "layers": [{"layer": "顶层模块/应用层", "items": ["功能子项单元A", "功能子项单元B"]}] },
-        pyramid_slide: { "type": "pyramid_slide", "page_title": "阶梯金字塔递进结构", "levels": [{"tier": "第一层级", "title": "定位要素说明"}, {"tier": "第二层级", "title": "定位要素说明"}] },
-        radial_slide: { "type": "radial_slide", "page_title": "核心向心圆外延结构", "core": "核心要素", "inner_ring": "紧密圈层要素", "outer_ring": "外围辐射扩展要素" },
-        hub_spoke_slide: { "type": "hub_spoke_slide", "page_title": "星型拓扑辐射供给网络", "center": "控制核心枢纽", "spokes": ["节点单元 A", "节点单元 B"] },
-        metrics_slide: { "type": "metrics_slide", "page_title": "核心关键量化指标看板", "metrics": [{"value": "0,000", "label": "统计指标名称", "trend": "变化量/趋势"}] },
-        bar_chart_slide: { "type": "bar_chart_slide", "page_title": "数据对比柱状图表", "headers": ["对比对象/年份", "统计数量"], "data": [["类别项目A", "100"]] },
-        line_chart_slide: { "type": "line_chart_slide", "page_title": "动态变化趋势折线图", "points": [["区间项", "数值"]] },
-        pie_chart_slide: { "type": "pie_chart_slide", "page_title": "比例结构分布饼图", "slices": [{"label": "构成元素一", "value": "50%"}] },
-        waterfall_chart_slide: { "type": "waterfall_chart_slide", "page_title": "步进演进增减瀑布图", "steps": [{"name": "初始基准值", "value": "100"}, {"name": "变量增减项", "value": "-20"}] },
-        cards_slide: { "type": "cards_slide", "layout": "grid", "page_title": "并列要点卡片平铺看板", "cards": [{"num": "01", "title": "子项大标题", "body": "具体的细节论证和描述文本内容说明项"}] },
-        text_list_slide: { "type": "text_list_slide", "page_title": "多要点清单列表页", "lead_text": "此处放大字号页内核心导言或金句结论", "list_items": ["基础列表陈述要点 1", "基础列表陈述要点 2"] },
-        quote_slide: { "type": "quote_slide", "page_title": "大字金句或外部证言引言", "quote_text": "“此处填写大字号需要高度强调的核心引言、结论或见证文本。”", "author": "发布主体/出处说明" }
+    // 格式化的文本提示字典（点击中间按钮时，直接在左侧追加以下文本作为可视化提示提示）
+    const textPrompts = {
+        title_slide: "type: title_slide\npage_title: 封面页\ntitle_zh: 请输入主标题内容\nsubtitle_zh: 请输入副标题补充说明\n",
+        menu_slide: "type: menu_slide\npage_title: Agenda 议程大纲\nchapters_num: 第一单元\nchapters_title: 章节核心内容\nchapters_desc: 细分展开要点阐述说明\n",
+        divider_slide: "type: divider_slide\npage_title: 章节过渡页\nchapter_num: 01\nchapter_title: 进入下一章节的核心核心命题\n",
+        summary_slide: "type: summary_slide\npage_title: 总结页\nconclusions: 归纳核心要点第一条\n",
+        timeline_slide: "type: timeline_slide\npage_title: 发展历史与时间轴节点\nmilestones_date: 2026年Q2\nmilestones_event: 完成核心原子架构的重构与功能闭环验证\n",
+        roadmap_slide: "type: roadmap_slide\npage_title: 项目实施路径规划总体路线图\nphases_phase: 阶段一\nphases_period: 0-6个月\nphases_name: 跑通原型验证与核心架构解耦\n",
+        gantt_slide: "type: gantt_slide\npage_title: 核心工程排程甘特图计划\ntasks_name: 底层逻辑重构\ntasks_start: 第1周\ntasks_duration: 3天\ntasks_owner: 架构组\n",
+        chain_slide: "type: chain_slide\npage_title: 多步骤因果关系传导逻辑链\nnodes_label: 第一步机制\nodes_detail: 阐述该步骤触发的深层逻辑或前置条件\n",
+        funnel_slide: "type: funnel_slide\npage_title: 层级转化漏斗模型分析\nlevels_level: 展现层\nlevels_rate: 100%\nlevels_desc: 覆盖全部基础数据源范围\n",
+        v_model_slide: "type: v_model_slide\npage_title: 校验对称V字模型架构\nleft_arm: 左侧控制流点\nright_arm: 右侧校验流点\nbottom_vertex: 底部核心交付物\n",
+        comparison_table_slide: "type: comparison_table_slide\npage_title: 多维度多标杆对比矩阵表格\ncolumns: 评估维度,标杆A,标杆B\nrows: 核心指标细项,情况A说明,情况B说明\n",
+        quadrant_slide: "type: quadrant_slide\npage_title: 2x2矩阵坐标四象限分析\ntop_left_title: 核心攻坚象限\n",
+        swot_slide: "type: swot_slide\npage_title: SWOT态势分析矩阵\nstrengths: 核心竞争优势维度点\n",
+        pros_cons_slide: "type: pros_cons_slide\npage_title: 双方案利弊对称平衡对比\npros: 积极因素或正面价值\ncons: 制约因素或潜在风险\n",
+        gap_analysis_slide: "type: gap_analysis_slide\npage_title: 现状与预期目标缺口分析差距分析\ncurrent: 当前实际执行现状\ntarget: 远期理想达成目标\ngaps: 核心短板与亟待填补的空缺\n",
+        architecture_slide: "type: architecture_slide\npage_title: 分层管控系统全景架构图\nlayers_layer: 基础应用层\nlayers_items: 功能单元A,功能单元B\n",
+        pyramid_slide: "type: pyramid_slide\npage_title: 阶梯金字塔递进结构\nlevels_tier: 基础支撑层\nlevels_title: 定位和不可动摇的底座要素\n",
+        radial_slide: "type: radial_slide\npage_title: 向心圆核心外延辐射结构\ncore: 核心驱动原件\ninner_ring: 紧密结合层\ outer_ring: 外部辐射生态圈\n",
+        hub_spoke_slide: "type: hub_spoke_slide\npage_title: 星型拓扑辐射供给网络\ncenter: 集中控制枢纽核心\nspokes: 分支节点A,分支节点B\n",
+        metrics_slide: "type: metrics_slide\npage_title: 核心关键量化统计指标看板\nmetrics_value: 98.4%\nmetrics_label: 自动化覆盖率\nmetrics_trend: 同比提升12%\n",
+        bar_chart_slide: "type: bar_chart_slide\npage_title: 数据对比分析常规柱状图\nheaders: 年度,指标数值\ndata: 2026年,8500\n",
+        line_chart_slide: "type: line_chart_slide\npage_title: 动态趋势变化折线图\npoints: 区间节点,具体数值\n",
+        pie_chart_slide: "type: pie_chart_slide\npage_title: 结构比例分布构成饼图\nslices_label: 模块A占比\nslices_value: 35%\n",
+        waterfall_chart_slide: "type: waterfall_chart_slide\npage_title: 步进演进增减瀑布图\nsteps_name: 初始期基准线\nsteps_value: 120\n",
+        cards_slide: "type: cards_slide\npage_title: 并列多要点平铺卡片布局\ncards_num: 01\ncards_title: 卡片核心主题\ncards_body: 展开论证细节的描述性说明文字\n",
+        text_list_slide: "type: text_list_slide\npage_title: 核心要点清单列表页\nlead_text: 放大字号的页内核心结论或金句导言\nlist_items: 基础陈述清单要点\n",
+        quote_slide: "type: quote_slide\npage_title: 大字引言与外部证言见证页\nquote_text: “此处填写需要高度强调的大字号核心证言结论”\nauthor: 权威发布主体或文献出处\n"
     };
 
-    // 追踪表单输入框的激活焦点
-    document.addEventListener('focusin', function(e) {
+    // ===================================================
+    // 🧠 核心更改：点击中间按钮，直接把脚手架提示追加到左侧大纲区
+    // ===================================================
+    function appendTemplateText(type) {
+        const txtArea = document.getElementById("rawText");
+        const promptTxt = textPrompts[type] || `type: ${type}\npage_title: 新增页面\n`;
+        
+        // 自动换行追加
+        if (txtArea.value.trim() === "") {
+            txtArea.value = promptTxt;
+        } else {
+            txtArea.value = txtArea.value.trim() + "\n\n" + promptTxt;
+        }
+        
+        // 自动滚动到左侧文本框底部，方便立刻看清和编辑
+        txtArea.scrollTop = txtArea.scrollHeight;
+    }
+
+    // ===================================================
+    // 🧠 选区捕获：监听左侧输入框动作，保存高亮文本
+    // ===================================================
+    const rawTextArea = document.getElementById("rawText");
+    function updateSelectionCache() {
+        const text = rawTextArea.value.substring(rawTextArea.selectionStart, rawTextArea.selectionEnd).trim();
+        if (text) {
+            cachedSelectedText = text;
+            document.getElementById("copyStatus").innerText = `已捕获: "${text.substring(0,10)}${text.length > 10 ? '...' : ''}"`;
+            document.getElementById("copyStatus").style.background = "#bae6fd";
+        }
+    }
+    rawTextArea.addEventListener('mouseup', updateSelectionCache);
+    rawTextArea.addEventListener('keyup', updateSelectionCache);
+
+    // 划选即填空：直接点击右侧输入框触发缓存文字覆盖
+    document.addEventListener('mousedown', function(e) {
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') && e.target.id !== 'rawText') {
-            activeInputElement = e.target;
+            if (cachedSelectedText) {
+                e.target.value = cachedSelectedText;
+                const events = ['input', 'change', 'blur'];
+                events.forEach(evtType => {
+                    const evt = new Event(evtType, { bubbles: true });
+                    e.target.dispatchEvent(evt);
+                });
+            }
         }
-    });
+    }, true);
 
-    // 独立可控的主动式文本注入函数
-    function injectSelectedText() {
-        const selectedText = window.getSelection().toString().trim();
-        if (!selectedText) {
-            alert("请先在左侧输入框内用鼠标划选高亮一段文本。");
-            return;
-        }
-        if (!activeInputElement) {
-            alert("请先在右侧表单配置区里用鼠标点击选中一个具体的输入框。");
-            return;
-        }
-        
-        // 覆盖并通知原生与框架树更新数据层
-        activeInputElement.value = selectedText;
-        const changeEvent = new Event('change', { bubbles: true });
-        activeInputElement.dispatchEvent(changeEvent);
-        
-        const blurEvent = new Event('blur', { bubbles: true });
-        activeInputElement.dispatchEvent(blurEvent);
-    }
-
-    // 将左侧模板按钮追加至右侧的底层调度函数
-    function loadTemplate(type) {
-        const currentData = editor.get();
-        if (!currentData.slides) currentData.slides = [];
-        
-        // 利用深拷贝脱离对象地址引用冲突
-        const cloneTpl = JSON.parse(JSON.stringify(templates[type] || {}));
-        currentData.slides.push(cloneTpl);
-        editor.set(currentData);
-        
-        setTimeout(() => {
-            editor.expandAll();
-            const jsonContainer = document.getElementById('jsoneditor');
-            if(jsonContainer) jsonContainer.scrollTop = jsonContainer.scrollHeight;
-        }, 30);
-    }
-
-    // 智能整篇解析左侧纯文本
+    // ===================================================
+    // 🧠 核心转换引擎：无错解析左侧强容错规范文本流
+    // ===================================================
     function parseTextToJSON() {
         const text = document.getElementById("rawText").value.trim();
         if (!text) {
-            alert("左侧内容为空，请输入具有格式的大纲文本。");
+            alert("左侧大纲草稿区尚无内容，请先点击中间版式按钮生成脚手架提示。");
             return;
         }
 
         const lines = text.split("\n");
-        const currentData = editor.get();
-        if (!currentData.slides) currentData.slides = [];
-
+        const currentData = {
+            "meta": { "filename": "presentation_output.pptx", "footer": "Slide Document Header/Footer Text" },
+            "slides": []
+        };
+        
         let currentSlide = null;
 
         lines.forEach(line => {
             const cleanLine = line.trim();
-            if (cleanLine.startsWith("type:")) {
+            if (!cleanLine) return;
+
+            // 智能兼容中英文冒号匹配开头
+            const matchType = cleanLine.match(/^type\s*[:|：]\s*(.+)$/i);
+            if (matchType) {
                 if (currentSlide) {
                     currentData.slides.push(currentSlide);
                 }
-                const typeVal = cleanLine.replace("type:", "").trim();
-                currentSlide = JSON.parse(JSON.stringify(templates[typeVal] || { "type": typeVal }));
-            } else if (currentSlide && cleanLine.includes(":")) {
-                const parts = cleanLine.split(":");
-                const key = parts[0].trim();
-                const val = parts.slice(1).join(":").trim();
-                if (currentSlide.hasOwnProperty(key)) {
-                    currentSlide[key] = val;
+                const typeVal = matchType[1].trim();
+                currentSlide = { "type": typeVal };
+                return;
+            }
+
+            if (currentSlide) {
+                const kvMatch = cleanLine.match(/^([a-zA-Z0-9_\-]+)\s*[:|：]\s*(.+)$/);
+                if (kvMatch) {
+                    const key = kvMatch[1].trim();
+                    const val = kvMatch[2].trim();
+                    
+                    // 特殊处理处理数组（如一页包含多个要点/卡片等子项的情况）
+                    if (key.includes("_")) {
+                        const baseArrKey = key.split("_")[0]; // 比如 chapters, milestones
+                        const subPropKey = key.split("_")[1]; // 比如 title, date
+                        
+                        if (!currentSlide[baseArrKey]) currentSlide[baseArrKey] = [{}];
+                        // 将值拆开或填入数组第一个默认对象中
+                        if (val.includes(",") || val.includes("，")) {
+                            currentSlide[baseArrKey] = val.split(/[，,]/).map(item => {
+                                let o = {}; o[subPropKey] = item.trim(); return o;
+                            });
+                        } else {
+                            currentSlide[baseArrKey][0][subPropKey] = val;
+                        }
+                    } else {
+                        // 常规单字段键值映射
+                        currentSlide[key] = val;
+                    }
                 }
             }
         });
@@ -247,9 +277,9 @@
             currentData.slides.push(currentSlide);
         }
 
+        // 同步通知右侧 JSONEditor 更新图形化 UI
         editor.set(currentData);
         editor.expandAll();
-        alert("批量解析成功！已在右侧生成完整的结构表单。");
     }
 
     function downloadJSON() {
